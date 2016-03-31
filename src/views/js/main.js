@@ -444,10 +444,14 @@ var resizePizzas = function(size) {
 
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
+    // Get the container of pizza containers
     var pizzaContainer = document.getElementById("randomPizzas");
+
+    //Get the pizzas for easy to read foreach syntax
     var pizzas = Array.prototype.slice.call(pizzaContainer.children);
     var newSize = -1;
 
+    // I think switches are fugly and are not measurably more performant
     if (size === '1')
       newSize = 0.25;
     else if (size === '2')
@@ -457,6 +461,7 @@ var resizePizzas = function(size) {
     else
       console.log('bug in sizeSwitcher');
 
+    // Completely cut out the old innefficient getDx since all pizzas will have the same size
     var newwidth = newSize * 100;
     var newWidthCSS = newwidth.toString() + '%';
     pizzas.forEach(function(pizza){
