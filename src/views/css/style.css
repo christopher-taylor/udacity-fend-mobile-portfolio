@@ -30,6 +30,8 @@ form {
 }
 
 .mover {
+  will-change: left, top;
+  transform: translateZ(0);
   position: fixed;
   width: 256px;
   z-index: -1;

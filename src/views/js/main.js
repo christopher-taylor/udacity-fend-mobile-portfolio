@@ -1,3 +1,4 @@
+"use strict";
 /*
 Welcome to the 60fps project! Your goal is to make Cam's Pizzeria website run
 jank-free at 60 frames per second.
@@ -425,15 +426,16 @@ var resizePizzas = function(size) {
 
   // Changes the value for the size of the pizza above the slider
   function changeSliderLabel(size) {
+    var pizzaSizeText = document.getElementById("pizzaSize").innerHTML;
     switch (size) {
       case "1":
-        document.querySelector("#pizzaSize").innerHTML = "Small";
+        pizzaSizeText = "Small";
         return;
       case "2":
-        document.querySelector("#pizzaSize").innerHTML = "Medium";
+        pizzaSizeText = "Medium";
         return;
       case "3":
-        document.querySelector("#pizzaSize").innerHTML = "Large";
+        pizzaSizeText = "Large";
         return;
       default:
         console.log("bug in changeSliderLabel");
@@ -444,14 +446,11 @@ var resizePizzas = function(size) {
 
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
-    // Get the container of pizza containers
+    // Turn the collection of randomPizzas children into an array for foreaching
     var pizzaContainer = document.getElementById("randomPizzas");
-
-    //Get the pizzas for easy to read foreach syntax
     var pizzas = Array.prototype.slice.call(pizzaContainer.children);
     var newSize = -1;
 
-    // I think switches are fugly and are not measurably more performant
     if (size === '1')
       newSize = 0.25;
     else if (size === '2')
@@ -481,8 +480,8 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+var pizzasDiv = document.getElementById("randomPizzas");
 for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
   pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
@@ -512,12 +511,14 @@ function logAverageFrame(times) { // times is the array of User Timing measureme
 // Moves the sliding background pizzas based on scroll position
 function updatePositions() {
   frame++;
+  ticking = false; //Tell the browser its okay to request another frame
   window.performance.mark("mark_start_frame");
 
-  var items = document.querySelectorAll('.mover');
-  var mathTerm = (document.body.scrollTop / 1250);
+  var items = document.getElementsByClassName('mover');
+  var mathTerm = (latestKnownScrollY / 1250);
+  var phase = undefined;
   for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin(mathTerm + (i % 5));
+    phase = Math.sin(mathTerm + (i % 5));
     items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
   }
 
@@ -531,22 +532,49 @@ function updatePositions() {
   }
 }
 
+
+/* This code here for onScroll() requestTick()
+as well as ticking=false and latestKnownScrollY in updatePositions came from the
+lovely post at: http://www.html5rocks.com/en/tutorials/speed/animations/ */
+var latestKnownScrollY = 0;
+var ticking = false;
+
+function onScroll() {
+	latestKnownScrollY = window.scrollY;
+  requestTick();
+}
+
+function requestTick() {
+	if(!ticking) {
+		requestAnimationFrame(updatePositions);
+	}
+	ticking = true;
+}
+
 // runs updatePositions on scroll
-window.addEventListener('scroll', updatePositions);
+window.addEventListener('scroll', onScroll);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
-  var cols = 8;
   var s = 256;
-  for (var i = 0; i < 200; i++) {
-    var elem = document.createElement('img');
+  var cols = 6;
+  var rows = Math.floor(screen.height / s);
+  var numPizzas = cols * rows;
+
+  console.log('Number of columns is ' + cols);
+  console.log('Number of rows is ' + rows);
+  console.log('Number of pizzas is ' + numPizzas)
+  var elem = undefined;
+  var movingPizzasContainer = document.getElementById("movingPizzas1");
+  for (var i = 0; i < numPizzas; i++) {
+    elem = document.createElement('img');
     elem.className = 'mover';
-    elem.src = "images/pizza.png";
     elem.style.height = "100px";
+    elem.src = "images/pizza.png";
     elem.style.width = "73.333px";
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    document.querySelector("#movingPizzas1").appendChild(elem);
+    movingPizzasContainer.appendChild(elem);
   }
   updatePositions();
 });

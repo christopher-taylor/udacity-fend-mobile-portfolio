@@ -71,13 +71,23 @@ gulp.task('sass', function() {
 });
 
 // Start up a local server hosted in the project root.
-gulp.task('browserSync', function() {
+gulp.task('browserSync-dev', function() {
   browserSync.init({
     server: {
       baseDir: 'src/'
     },
   })
 })
+
+// Start up a local server hosted in the project root.
+gulp.task('browserSync-built', function() {
+  browserSync.init({
+    server: {
+      baseDir: 'dev/'
+    },
+  })
+})
+
 
 gulp.task('buildCSS', function() {
   return gulp.src('src/css/**/*.css')
@@ -142,7 +152,7 @@ gulp.task('build', function(callback) {
 
 // Compile CSS, spinup the local server, then start watching files.
 gulp.task('default', function(callback) {
-  runSequence(['sass', 'browserSync', 'watch'],
+  runSequence(['sass', 'browserSync-dev', 'watch'],
     callback
   )
 })
