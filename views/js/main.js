@@ -561,9 +561,6 @@ document.addEventListener('DOMContentLoaded', function() {
   var rows = Math.floor(screen.height / s);
   var numPizzas = cols * rows;
 
-  console.log('Number of columns is ' + cols);
-  console.log('Number of rows is ' + rows);
-  console.log('Number of pizzas is ' + numPizzas)
   var elem = undefined;
   var movingPizzasContainer = document.getElementById("movingPizzas1");
   for (var i = 0; i < numPizzas; i++) {
